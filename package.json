@@ -1,0 +1,23 @@
+{
+  "name": "tmgmt-zanata-dev-env",
+  "version": "1.0.0",
+  "description": "Scripts to help set up the development environment to work on tmgmt-zanata.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davidmason/tmgmt-zanata-dev-env"
+  },
+  "author": "https://github.com/davidmason",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davidmason/tmgmt-zanata-dev-env/issues"
+  },
+  "homepage": "https://github.com/davidmason/tmgmt-zanata-dev-env",
+  "dependencies": {
+    "prompt": "^0.2.14",
+    "simple-subprocess": "^1.0.1"
+  }
+}
