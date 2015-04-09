@@ -6,6 +6,7 @@ var exec = require('simple-subprocess')
   , prompt = require('prompt')
   ;
 
+prompt.message = '?';
 
 // TODO make more compositional control flow for chaining interactions together.
 // Can probably do a lot of this with futures or something. Finish reading
@@ -44,10 +45,14 @@ function askToAddRemotes () {
     if (result) {
       var cwd = process.cwd();
       try {
-        process.chdir(cloneLocation)
-        exec('git remote add drupal-sandbox davidmason@git.drupal.org:sandbox/davidmason/2279489.git');
-        exec('git remote add drupal davidmason@git.drupal.org:project/tmgmt_zanata.git');
-        console.log('Finished adding remotes.');
+        process.chdir(cloneLocation);
+        addRemote('drupal-sandbox', 'davidmason@git.drupal.org:sandbox/davidmason/2279489.git')
+          .on('exit', function () {
+            addRemote('drupal', 'davidmason@git.drupal.org:project/tmgmt_zanata.git')
+              .on('exit', function () {
+                console.log('Finished adding remotes.');
+              });
+          });
       } catch (e) {
         console.error('could not open clone location %s', cloneLocation);
       }
@@ -55,8 +60,16 @@ function askToAddRemotes () {
   });
 }
 
+// TODO check whether remote exists
+//      and whether it already has the given URI
+// TODO return a future
+function addRemote(name, uri) {
+  return exec('git remote add ' + name + ' ' + uri);
+}
+
+// TODO return a future
 function ask (yesNoQuestion, callback) {
-  // TODO make a module for yes/no prompt schema and interpreting it as a boolean.
+  // TODO make a module for yes/no prompt schema that returns a boolean.
   var schema = {
     properties: {
       question: {
@@ -64,18 +77,18 @@ function ask (yesNoQuestion, callback) {
         required: true,
         pattern: /^([yY]([eE][sS])?|[nN][oO]?)$/,
         message: 'y/N',
-        default: 'y'
+        default: 'y',
+        before: function (value) { return value.charAt(0).toLowerCase() === 'y' }
       }
     }
   };
 
   prompt.start();
-  prompt.get(schema, function (err, result) {
-    if (err) {
-      callback(err, null);
-    } else {
-      var responseAsBool = result.question.charAt(0).toLowerCase() === 'y';
-      callback(err, responseAsBool);
-    }
-  });
+  prompt.get(schema, callback);
 }
+
+
+
+// TODO offer to install drupal
+// TODO offer to activate all the depended modules
+// TODO offer to copy the module code from the github clone
